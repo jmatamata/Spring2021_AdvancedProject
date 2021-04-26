@@ -1,3 +1,5 @@
+import 'package:acm_widget_mobile_app/blocs/checklist_bloc.dart';
+import 'package:acm_widget_mobile_app/models/checklist_deadline_clock.dart';
 import 'package:flutter/material.dart';
 
 class ChecklistPage extends StatefulWidget {
@@ -6,6 +8,76 @@ class ChecklistPage extends StatefulWidget {
 }
 
 class _ChecklistState extends State<ChecklistPage> {
+  final checklistBloc = ChecklistBloc();
+
+  final taskDeadlineClock = TaskDeadlineClock();
+
+  final int _deleteButtonColor = 0xfff7b6b2;
+
+  Future<TaskDataReturnType> createAlertDialog(BuildContext context) {
+    TextEditingController customController = TextEditingController();
+
+    String _tempTaskName;
+
+    DateTime _tempTaskDeadline;
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Enter Task"),
+            content: TextField(
+              controller: customController,
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text("Date"),
+                  onPressed: () {
+                    createTimeDialog(context).then((date) {
+                      _tempTaskDeadline = date;
+                    });
+                  }),
+              MaterialButton(
+                  elevation: 5.0,
+                  child: Text("Add"),
+                  onPressed: () {
+                    _tempTaskName = customController.text.toString();
+
+                    Navigator.of(context).pop(
+                        TaskDataReturnType(_tempTaskName, _tempTaskDeadline));
+                  }),
+            ],
+          );
+        });
+  }
+
+  Future<DateTime> createTimeDialog(BuildContext context) {
+    return showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2222),
+    ).then((date) {
+      return date;
+    });
+  }
+
+  @override
+  void dispose() {
+    checklistBloc.dispose();
+
+    taskDeadlineClock.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
